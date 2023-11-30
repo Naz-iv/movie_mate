@@ -1,30 +1,18 @@
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
-from django.views.generic import ListView
-
+from rest_framework import mixins, generics
 from movies.models import Movie
+from movies.serializers import MovieSerializer
 
 
-def movie_list_view(request: HttpRequest) -> HttpResponse:
-    movies = Movie.objects.all()[:5]
-    context = {
-        "movies": movies,
-    }
-    return render(request, "movies/movies_list.html", context=context)
+class MovieListView(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    generics.GenericAPIView
+):
+    queryset = Movie.objects.all()
+    serializer_class = MovieSerializer
 
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
-class MovieListView(ListView):
-    model = Movie
-    template_name = "movies/movies_list.html"
-    context_object_name = "movies"
-    paginate_by = 4
-
-    def get_queryset(self):
-        genre_filter = self.request.GET.get("genre")
-
-        queryset = super().get_queryset()
-
-        if genre_filter:
-            queryset = queryset.filter(movie_genres__genre__name=genre_filter)
-
-        return queryset
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
