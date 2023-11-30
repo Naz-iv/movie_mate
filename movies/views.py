@@ -3,7 +3,7 @@ from movies.models import Movie
 from movies.serializers import MovieSerializer
 
 
-class MovieListView(
+class MovieList(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     generics.GenericAPIView
